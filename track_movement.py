@@ -30,7 +30,8 @@ else:
 # initialize the first frame in the video stream
 firstFrame = None
 inumber = args.get("numbers")
-iter=0
+miter=0
+update_iter=0
 stime = args.get("sleep")
 update_number = args.get("updatenumber")
 if update_number > inumber:
@@ -86,14 +87,16 @@ while True:
         (x, y, w, h) = cv2.boundingRect(c)
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
         text = "Occupied"
-        if iter > inumber:
-            iter = 0
-        if iter > update_number:
+        update_iter += 1
+        miter += 1
+        if miter > inumber:
+            miter = 0
+        if update_iter > update_number:
+            update_iter = 0
             firstFrame = gray
-        iter = iter+1
-        cv2.imwrite("./show%d.jpg" % iter, frame,
+        cv2.imwrite("./show%d.jpg" % miter, frame,
                     [int(cv2.IMWRITE_JPEG_QUALITY), 90])
-	print "saving pic show%d" % iter
+	print "saving pic show%d" % miter
     # draw the text and timestamp on the frame
     cv2.putText(frame, "Room Status: {}".format(text), (10, 20),
         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
