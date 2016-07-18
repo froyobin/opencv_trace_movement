@@ -11,8 +11,9 @@ ap.add_argument("-v", "--video", help="path to the video file")
 ap.add_argument("-a", "--min-area", type=int, default=500, help="minimum area size")
 ap.add_argument("-n", "--numbers", type=int, default=100, help="number of "
                                                                "pictures")
-ap.add_argument("-s", "--sleep", type=int, default=100, help="number of "
-                                                               "pictures")
+ap.add_argument("-s", "--sleep", type=int, default=1, help="time to sleep")
+ap.add_argument("-u", "--updatenumber", type=int, default=10, help="update "
+                                                                 "number")
 
 args = vars(ap.parse_args())
 
@@ -29,7 +30,12 @@ else:
 # initialize the first frame in the video stream
 firstFrame = None
 inumber = args.get("numbers")
+iter=0
 stime = args.get("sleep")
+update_number = args.get("updatenumber")
+if update_number > inumber:
+    print "update_number is larger than number of pictures!"
+    exit()
 # loop over the frames of the video
 while True:
     # grab the current frame and initialize the occupied/unoccupied
@@ -80,11 +86,14 @@ while True:
         (x, y, w, h) = cv2.boundingRect(c)
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
         text = "Occupied"
-        if inumber > 10:
-            inumber = 0
-        inumber = inumber+1
-        cv2.imwrite("./show%d.jpg" % inumber, frame,
+        if iter > inumber:
+            iter = 0
+        if iter > update_number:
+            firstFrame = gray
+        iter = iter+1
+        cv2.imwrite("./show%d.jpg" % iter, frame,
                     [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+	print "saving pic show%d" % iter
     # draw the text and timestamp on the frame
     cv2.putText(frame, "Room Status: {}".format(text), (10, 20),
         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
